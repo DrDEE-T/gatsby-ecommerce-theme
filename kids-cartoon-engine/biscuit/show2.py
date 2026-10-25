@@ -121,7 +121,12 @@ def build():
     s.wait(1.4)
     s.say("prickles", "Oopsie-prickle! My spikes pop them!", key="p2", gap=0.3)
     s.say("mittens", "Let's do bath time together. One step at a time.", key="m1", gap=0.3)
-    s.say("biscuit", "Okay. I'll try.", key="b1", gap=0.6)
+    s.say("biscuit", "Okay. I'll try.", key="b1", gap=0.4)
+    s.say("mittens", "Bath time has five steps. Let's count them!", key="m2", gap=0.2)
+    for i, w in enumerate(["One!", "Two!", "Three!", "Four!", "Five!"]):
+        s.mark(f"st{i}"); s.fx(f"ding{i + 1}")
+        s.say("narr", w, gap=0.4)
+    s.wait(0.5)
 
     def d2(c, t, s=s):
         cam(c, 1.3, 600, 470)
@@ -155,6 +160,14 @@ def build():
                 elif by > 120:
                     bubble(c, bx, by, 14 + hsh(i, 7) * 10, t)
         c.restore()
+        for i in range(5):
+            st = s.M(f"st{i}")
+            if t > st:
+                x, y = 360 + i * 140, 120
+                k = back_out((t - st) / 0.3)
+                circle(c, x, y, 50 * k, STEP_COLS[i], 6)
+                text(c, str(i + 1), x, y, 56 * k, 0xFFFFFFFF, ow=6)
+                text(c, STEP_NAMES[i], x, y + 74, 26 * k, 0xFFFFFFFF, ow=5)
     s.draw = d2
     S.append(s)
 
@@ -218,7 +231,7 @@ def build():
     s.fx("splash_small", 0.3)
     s.wait(0.6)
     s.say("narr", "Step three. Scrub, scrub, scrub! Can you scrub with Biscuit?", key="s3", gap=0.3)
-    parts = [("tummy", "body"), ("ears", "ears"), ("paws", "paws")]
+    parts = [("tummy", "body"), ("ears", "ears"), ("paws", "paws"), ("tail", None)]
     for i, (word, part) in enumerate(parts):
         s.say(["biscuit", "mittens"], f"Scrub your {word}!", key=f"sc{i}", gap=0.1)
         s.mark(f"kids{i}"); s.fx("scrub"); s.wait(1.8)
@@ -236,9 +249,9 @@ def build():
         cam(c, 1.45, 640, 470)
         garden(c, t, props=("tree",))
         tub_back(c, 640, 700, 1.0)
-        remaining = [p for i, (w, p) in enumerate(parts) if t < s.M(f"kids{i}") + 1.5]
+        remaining = [p for i, (w, p) in enumerate(parts) if p and t < s.M(f"kids{i}") + 1.5]
         mud = 1.0
-        scrubbing = any(s.M(f"kids{i}") < t < s.M(f"kids{i}") + 1.8 for i in range(3))
+        scrubbing = any(s.M(f"kids{i}") < t < s.M(f"kids{i}") + 1.8 for i in range(len(parts)))
         draw_biscuit(c, 640 + (math.sin(t * 14) * 5 if scrubbing else 0), 596, 1.0, t, mouth=s.mouth("biscuit", t), face=1,
                      mud=mud if remaining else 0, mud_parts=tuple(remaining), ears=0.6, wag=1.0,
                      blink=1.0 if s.M("tickle") < t < s.M("tickle_end") else None)
@@ -267,13 +280,17 @@ def build():
     s.mark("rinse"); s.fx("pour")
     s.wait(1.6)
     s.say("biscuit", "[laugh] Splashy!", key="splashy", gap=0.2)
+    s.say("prickles", "My turn to help!", key="help", gap=0.1)
+    s.mark("oops_spray"); s.fx("splash_small", s.t + 0.2)
+    s.wait(0.6)
+    s.say("prickles", "[laugh] Oopsie-prickle! I rinsed me!", key="rinsed", gap=0.3)
     s.mark("done4"); s.fx("ding7")
     s.say("narr", "Step five. Dry off with a towel.", key="s5", gap=0.2)
     s.mark("hop_out"); s.fx("boing")
     s.wait(0.8)
     s.mark("shake"); s.fx("shake")
     s.wait(1.2)
-    s.say("mittens", "Mrrow! Now I'm wet!", key="wet", gap=0.2)
+    s.say("mittens", "Meow! Now I'm all wet!", key="wet", gap=0.2)
     s.say("prickles", "[laugh] Oopsie-biscuit!", key="laugh", gap=0.3)
     s.mark("towel"); s.fx("cape")
     s.wait(0.8)
@@ -316,13 +333,53 @@ def build():
                 towel(c, bx, GY + 4, 1.0)
                 sparkles(c, bx, 520, t, 6, 80)
         draw_prickles(c, 1040, GY, 0.95, t, mouth=s.mouth("prickles", t), face=-1, look=(-1, 0))
+        sp = s.M("oops_spray")
+        if sp < t < sp + 1.6:
+            for k in range(12):
+                ph = (t * 2.5 + k / 12) % 1
+                circle(c, 1010 + (hsh(k) - 0.5) * 90, 480 + ph * 160, 6, 0xCC7FD3FF, 0)
         c.restore()
         steps_bar(c, t, s, ["_", "_", "_", "done4", "done5"])
     s.m["_"] = -1.0
     s.draw = d5
     S.append(s)
 
-    # ---------------- 6. CLEAN, FLUFFY, CALM
+    # ---------------- 6. RECAP CHANT: the repeating hook
+    s = Scene("recap", music="theme", trans="hero", music_gain=0.6)
+    s.wait(0.3)
+    s.say("narr", "Let's say the bath steps together!", key="n1", gap=0.3)
+    s.say(["biscuit", "mittens", "prickles"], "Water! Bubbles! Scrub! Rinse! Dry!", key="c1", gap=0.6)
+    s.say("narr", "Your turn! Say it with Biscuit!", key="n2", gap=0.2)
+    s.mark("kids"); s.wait(4.0)
+    s.say("narr", "Great job, friends!", key="n3", gap=0.2)
+    s.fx("sparkle"); s.fx("ding8")
+    s.wait(0.8)
+
+    def d_recap(c, t, s=s):
+        hero_rays(c, t * 0.5, 0xFF8FD6FF, 0xFFA8E0FF)
+        draw_mittens(c, 300, 690, 0.9, t, mouth=s.mouth("mittens", t), face=1)
+        draw_biscuit(c, 640, 700, 1.0, t, mouth=s.mouth("biscuit", t), face=1, ears=0.7, wag=1.4)
+        draw_prickles(c, 980, 700, 0.95, t, mouth=s.mouth("prickles", t), face=-1)
+        # light up each step word as it is said (and during the kids' turn)
+        hi = -1
+        for (a, d) in ((s.M("c1"), s.M("c1_end") - s.M("c1")), (s.M("kids") + 0.3, 3.2)):
+            if a < t < a + d:
+                hi = min(int((t - a) / d * 5), 4)
+        for i in range(5):
+            x, y = 240 + i * 200, 170
+            on = i == hi
+            sc = 1.25 if on else 1.0
+            circle(c, x, y, 62 * sc, STEP_COLS[i] if on or t > s.M("n3") else 0xFFFFFFFF, 6)
+            text(c, str(i + 1), x, y, 60 * sc, 0xFFFFFFFF if on or t > s.M("n3") else STEP_COLS[i], ow=0)
+            text(c, STEP_NAMES[i], x, y + 92, 34 * sc, 0xFFFFD93B if on else 0xFFFFFFFF, ow=6)
+        if s.M("kids") < t < s.M("n3"):
+            text(c, "YOUR TURN!", 640, 400, 70, 0xFFFFD93B, scale=1 + 0.06 * math.sin(t * 8))
+        if t > s.M("n3"):
+            sparkles(c, 640, 300, t, 12, 320)
+    s.draw = d_recap
+    S.append(s)
+
+    # ---------------- 7. CLEAN, FLUFFY, CALM
     s = Scene("fluffy", music="rainbow", trans="rainbow", music_gain=0.7)
     s.wait(0.4)
     s.fx("wag", s.t + 0.3)

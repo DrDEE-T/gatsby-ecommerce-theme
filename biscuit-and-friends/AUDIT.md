@@ -5,8 +5,8 @@
 | Problem stated in the first 15 seconds | Secret shown at about 5s. Biscuit says the ball is gone at about 22s, after a 3s title. Close enough, since the secret is the hook. | Mud at about 5s, "Baths are scary" at about 13s. Passes. |
 | One problem, one plan, one solution | Lost ball, three-place search, ball pops off Prickles | Scared of the bath, five steps, clean and happy |
 | Calm ending | Group hug, "Best ball day ever" | Towel, hug, "Bath time, then bedtime" |
-| Length 3 to 4 minutes | About 3:20 | About 2:45 |
-| Repeating hook with a one-word swap and an action | "Is it in the bucket / grass / tree? No, no, no!" | "Scrub your tummy / ears / paws!" with scrubbing |
+| Length 2 to 4 minutes | 3:23 | 2:19 (extended from 1:49 with a step count, a fourth scrub and a recap chant) |
+| Repeating hook with a one-word swap and an action | "Is it in the bucket / grass / tree? No, no, no!" | "Scrub your tummy / ears / paws / tail!" with scrubbing, plus the "Water! Bubbles! Scrub! Rinse! Dry!" recap chant said twice |
 | Nonsense words only on the beat | None used | None used |
 | Shots held 3 to 6 seconds, gentle zooms | Yes | Yes |
 | Quiet at kids' turns, then show the answer | Music drops under every kids' turn (fixed in this audit) | Same |
