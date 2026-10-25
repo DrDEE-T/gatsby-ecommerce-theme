@@ -62,11 +62,29 @@ def sfx_sniff():
         out[i:i + len(b)] += b
     return A.norm(out, 0.35)
 
-A.SFX.update({"roll": sfx_roll, "squeak": sfx_squeak, "pok": sfx_pok, "patter": sfx_patter, "mrrp": sfx_mrrp,
+def sfx_wag():
+    out = np.zeros(int(0.5 * A.SR))
+    for k in range(2):
+        b = A.bp(A.noise(0.09), 900, 4000) * np.hanning(int(0.09 * A.SR))
+        i = int(k * 0.16 * A.SR)
+        out[i:i + len(b)] += b
+    return A.norm(out, 0.4)
+
+A.SFX.update({"wag": sfx_wag, "roll": sfx_roll, "squeak": sfx_squeak, "pok": sfx_pok, "patter": sfx_patter, "mrrp": sfx_mrrp,
               "scratch": sfx_scratch, "sniff": sfx_sniff})
 
 
 # ---------------------------------------------------------------- helpers
+KIDS_MARKS = ("kids", "kids1", "kids2", "no_kids", "yes_kids")
+
+
+def finish(S):
+    """Research rule: 2-3 seconds of near-silence at every kids' turn, so children can answer."""
+    for sc in S:
+        for k in KIDS_MARKS:
+            if k in sc.m:
+                sc.duck_zero.append((sc.m[k] - 0.1, sc.m[k] + 1.8))
+    return S
 def checklist(c, t, s, n_done_marks):
     """Three numbered circles in the top-right corner, checked as each place is searched."""
     for i in range(3):
@@ -99,7 +117,7 @@ def build():
     for i in range(3):
         s.fx("boing", 0.3 + i * 0.45)
     s.fx("sparkle", 1.7)
-    s.t = 4.2
+    s.t = 3.0
 
     def d0(c, t, s=s):
         hero_rays(c, t, 0xFF6CC8FF, 0xFF8ED8FF)
@@ -142,7 +160,7 @@ def build():
     # ---------------- 1. BALL DAY
     s = Scene("ballday", music="theme", trans="bubble", music_gain=0.5)
     s.fx("patter", 0.1); s.fx("chirp", 0.0)
-    s.wait(1.6)
+    s.wait(1.6); s.fx("wag", s.t + 0.2)
     s.say("biscuit", "[laugh] Hi, friends! I'm Biscuit! Today is the best day ever. It's ball day!", key="hi", gap=0.4)
     s.mark("dig"); s.fx("pok", s.t + 0.6); s.fx("squeak", s.t + 1.3)
     s.say("biscuit", "Where is it? Where is it?", key="where", gap=0.6)
@@ -190,7 +208,7 @@ def build():
     s.say("mittens", "Good morning, Biscuit. Why the sad face?", key="m1", gap=0.3)
     s.say("biscuit", "I lost my red ball. It's my favorite ball in the whole world.", key="b1", gap=0.3)
     s.say("mittens", "Don't worry. Cats are very good at finding things. We'll find it together.", key="m2", gap=0.3)
-    s.mark("yay"); s.fx("boing", s.t + 0.1); s.fx("boing", s.t + 0.6)
+    s.mark("yay"); s.fx("boing", s.t + 0.1); s.fx("boing", s.t + 0.6); s.fx("wag", s.t + 0.9)
     s.say("biscuit", "[laugh] Woof! Woof! Hooray!", key="b2", gap=0.7)
 
     def d2(c, t, s=s):
@@ -421,6 +439,7 @@ def build():
     s.wait(4.6)
     s.mark("hush"); s.wait(1.6)
     s.say("biscuit", "[gasp] My red ball! It was on Prickles the whole time!", key="b1", gap=0.3)
+    s.fx("wag", s.t + 0.5)
     s.say("prickles", "Oopsie-prickle! Sorry, Biscuit!", key="p2", gap=0.3)
     s.say("biscuit", "[laugh] That's okay! Woof! Woof! Hooray!", key="b2", gap=0.3)
     s.say("mittens", "Purr-fect.", key="m1", gap=0.3)
@@ -552,4 +571,4 @@ def build():
             text(c, "SEE YOU NEXT TIME!", 640, 680, 44, 0xFFFFFFFF, scale=back_out((tt - 0.4) / 0.4))
     s.draw = d10
     S.append(s)
-    return S
+    return finish(S)

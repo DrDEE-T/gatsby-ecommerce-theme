@@ -10,7 +10,8 @@ sys.path.insert(0, HERE)
 sys.path.insert(1, os.path.join(os.path.dirname(HERE), "pip"))
 import draw as D
 import audio as A
-from show import build
+import importlib
+build = importlib.import_module(os.environ.get("SHOW", "show")).build
 import voice
 
 OUT_W, OUT_H = 1920, 1080

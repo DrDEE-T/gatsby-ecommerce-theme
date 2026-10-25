@@ -13,8 +13,8 @@ RED = 0xFFE8343B
 
 # ---------------------------------------------------------------- Biscuit
 def draw_biscuit(c, x, y, s=1.0, t=0.0, mouth=0.0, look=(0, 0), face=1, ears=0.0, wag=1.0,
-                 squash=0.0, tilt=0.0, blink=None, sad=0.0, sit=0.0):
-    """Golden puppy. ears: -1 droopy (sad) .. 1 perky. wag: tail wag speed. (x, y) = feet."""
+                 squash=0.0, tilt=0.0, blink=None, sad=0.0, sit=0.0, mud=0.0, mud_parts=("body", "ears", "paws")):
+    """Golden puppy. mud: 0 clean .. 1 covered in mud spots (mud_parts picks which spots show). ears: -1 droopy (sad) .. 1 perky. wag: tail wag speed. (x, y) = feet."""
     c.save()
     c.translate(x, y)
     c.rotate(tilt)
@@ -83,6 +83,87 @@ def draw_biscuit(c, x, y, s=1.0, t=0.0, mouth=0.0, look=(0, 0), face=1, ears=0.0
         c.drawPath(mp, stroke(INK, 3.5))
     circle(c, -28, hy + 14, 7, 0x55FF7A9A, 0)
     circle(c, 34, hy + 14, 7, 0x55FF7A9A, 0)
+    if mud > 0:
+        spots = {"body": [(-24, -66, 15), (18, -76, 12), (-4, -40, 13), (34, -50, 10)],
+                 "ears": [(-44, hy + 6, 11), (46, hy + 2, 10), (-8, hy - 32, 12)],
+                 "paws": [(-12, -8, 11), (24, -8, 11)]}
+        for part in mud_parts:
+            for (mx, my, mr) in spots[part]:
+                circle(c, mx, my, mr * mud, alpha(0xFF7A5232, 0.92), 0)
+                circle(c, mx + mr * 0.6 * mud, my - mr * 0.4 * mud, mr * 0.45 * mud, alpha(0xFF7A5232, 0.92), 0)
+    c.restore()
+
+
+# ---------------------------------------------------------------- bath props
+def mud_puddle(c, x, y, rx=150, t=0.0):
+    oval(c, x, y, rx, rx * 0.26, 0xFF8B5A2B, 4, 0xFF5A3A1A)
+    oval(c, x - rx * 0.3, y - rx * 0.05, rx * 0.25, rx * 0.06, 0x55FFFFFF, 0)
+    for i in range(3):
+        ph = (t * 0.7 + i / 3) % 1
+        circle(c, x - rx * 0.5 + i * rx * 0.5, y - 2, 4 + 6 * ph, alpha(0xFF6B4423, 1 - ph), 0)
+
+
+def tub_back(c, x, y, s=1.0):
+    c.save(); c.translate(x, y); c.scale(s, s)
+    oval(c, 0, -110, 170, 34, 0xFFB8C4D0, 5)
+    oval(c, 0, -110, 154, 26, 0xFF8FA0B2, 0)
+    c.restore()
+
+
+def tub_front(c, x, y, s=1.0, water=0.0, t=0.0, bubbles=0.0):
+    """Front of a tin bath tub. water 0..1 fills it; bubbles 0..1 piles foam on top."""
+    c.save(); c.translate(x, y); c.scale(s, s)
+    if water > 0:
+        wy = -12 - 92 * water
+        wp = skia.Path()
+        wp.moveTo(-156, wy)
+        for i in range(0, 313, 26):
+            wp.lineTo(-156 + i, wy + math.sin(i * 0.05 + t * 3) * 4)
+        wp.lineTo(156, -110); wp.lineTo(-156, -110); wp.close()
+        c.drawOval(skia.Rect.MakeLTRB(-154, wy - 22, 154, wy + 22), fill(alpha(0xFF7FD3FF, 0.85)))
+    body = skia.Path()
+    body.moveTo(-170, -110); body.cubicTo(-168, -20, -140, 0, -120, 0); body.lineTo(120, 0); body.cubicTo(140, 0, 168, -20, 170, -110)
+    body.cubicTo(120, -84, -120, -84, -170, -110); body.close()
+    path_draw(c, body, 0xFFC9D3DD, 5)
+    for k in (-1, 1):
+        c.drawLine(k * 120, -70, k * 120, -20, stroke(0xFFA9B6C4, 6))
+    for k in (-1, 1):
+        oval(c, k * 182, -100, 18, 12, 0xFFC9D3DD, 4)
+        for fx in (-1, 1):
+            oval(c, k * 110 + fx * 18, 4, 14, 8, 0xFFA9B6C4, 3.5)
+    if bubbles > 0:
+        for i in range(16):
+            bx = -150 + hsh(i, 2) * 300
+            by = -112 - hsh(i, 3) * 40 * bubbles
+            r = (14 + hsh(i, 4) * 16) * bubbles
+            circle(c, bx, by, r, 0xEEFFFFFF, 3, 0xFFB8D8F0)
+            circle(c, bx - r * 0.35, by - r * 0.35, r * 0.2, 0xFFFFFFFF, 0)
+    c.restore()
+
+
+def bubble(c, x, y, r, t=0.0, pop=0.0):
+    """Floating soap bubble. pop 0..1 bursts it into a ring of droplets."""
+    if pop <= 0:
+        p = skia.Paint(AntiAlias=True, Color=0x44A8E6FF)
+        c.drawCircle(x, y, r, p)
+        c.drawCircle(x, y, r, stroke(0xCC8FD3FF, 3))
+        c.drawArc(skia.Rect.MakeLTRB(x - r * 0.7, y - r * 0.7, x + r * 0.7, y + r * 0.7), 200, 70, False, stroke(0xEEFFFFFF, 3))
+        c.drawCircle(x + r * 0.35, y + r * 0.3, r * 0.08, fill(0xCCFF9BD5))
+    elif pop < 1:
+        for k in range(8):
+            a = k * math.tau / 8
+            d = r * (1 + pop * 1.2)
+            circle(c, x + math.cos(a) * d, y + math.sin(a) * d, 4 * (1 - pop), 0xCC8FD3FF, 0)
+
+
+def towel(c, x, y, s=1.0):
+    c.save(); c.translate(x, y); c.scale(s, s)
+    tp = skia.Path()
+    tp.moveTo(-70, -130); tp.cubicTo(-90, -60, -80, -10, -60, 0); tp.lineTo(60, 0); tp.cubicTo(80, -10, 90, -60, 70, -130)
+    tp.cubicTo(30, -110, -30, -110, -70, -130); tp.close()
+    path_draw(c, tp, 0xFFFF9BD5)
+    for k in range(3):
+        c.drawLine(-64 + k * 4, -40 + k * 14, 64 - k * 4, -40 + k * 14, stroke(0xFFFFFFFF, 5))
     c.restore()
 
 
