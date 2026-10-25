@@ -459,9 +459,11 @@ def tall_grass(c, x0, x1, y=GROUND_Y + 60, t=0.0, h=120):
         path_draw(c, p, [0xFF4FB84F, 0xFF6CCB5F, 0xFF3FA65A][i % 3], 3, 0xFF2E7D3A)
 
 
-def garden(c, t, props=("box", "bucket", "pot", "tree"), bucket_tip=0.0, pot_wobble=0.0, grass=False):
+def garden(c, t, props=("box", "bucket", "pot", "tree"), bucket_tip=0.0, pot_wobble=0.0, grass=False, sun_set=0.0):
+    """sun_set 0 = midday sun, 1 = sun has gone down behind the hills."""
     sky(c, 0.0)
-    sun(c, 1120, 100, t, 1.0)
+    if sun_set < 1:
+        sun(c, 1120, lerp(100, 520, sun_set), t, 1.0)
     clouds(c, t, 0.0, 3, 110)
     hills(c, 0.0)
     fence(c, 520)
@@ -476,3 +478,56 @@ def garden(c, t, props=("box", "bucket", "pot", "tree"), bucket_tip=0.0, pot_wob
         flowerpot(c, 800, 600, 1.0, pot_wobble)
     if grass:
         tall_grass(c, 820, 1060, 640, t)
+
+
+# ---------------------------------------------------------------- bedtime props
+def dusk_overlay(c, night=0.0, sunset=0.0):
+    """Tint a daytime garden toward sunset orange, then night blue."""
+    if sunset > 0:
+        c.drawPaint(fill(alpha(0xFFFF9A5A, 0.28 * sunset * (1 - night))))
+    if night > 0:
+        c.drawRect(skia.Rect.MakeLTRB(-800, -400, 2100, 1400), fill(alpha(0xFF1B2556, 0.62 * night)))
+
+
+def night_sky(c, t, night=1.0, moon=True, n_stars=40, only=None):
+    """Stars and moon on top of the dusk overlay. only = number of 'story' stars to show (counting)."""
+    if night <= 0:
+        return
+    for i in range(n_stars):
+        x = hsh(i, 21) * 1500 - 100
+        y = 60 + hsh(i, 22) * 280
+        tw = 0.6 + 0.4 * math.sin(t * 3 + i)
+        path_draw(c, star_path(x, y, 5 * tw, 2.2 * tw, 4, 0), alpha(0xFFFFF7C2, night), 0)
+    if moon:
+        mx, my = 960, 160
+        circle(c, mx, my, 74, alpha(0x33FFF3B0, night), 0)
+        circle(c, mx, my, 58, alpha(0xFFFFF3B0, night), 5, alpha(0xFFE0C860, night))
+        for (cx_, cy_, r_) in ((-20, -18, 9), (18, 14, 7), (22, -22, 5)):
+            circle(c, mx + cx_, my + cy_, r_, alpha(0xFFF2E08A, night), 0)
+        if night > 0.5:
+            for sx in (-1, 1):
+                c.drawArc(skia.Rect.MakeLTRB(mx + sx * 18 - 8, my - 8, mx + sx * 18 + 8, my + 2), 0, 180, False, stroke(alpha(INK, night), 3.5))
+            mp = skia.Path(); mp.moveTo(mx - 12, my + 18); mp.quadTo(mx, my + 28, mx + 12, my + 18)
+            c.drawPath(mp, stroke(alpha(INK, night), 3.5))
+
+
+def story_star(c, x, y, r, t, k=1.0):
+    path_draw(c, star_path(x, y, r * back_out(k), r * 0.45 * back_out(k)), 0xFFFFE15A, 5)
+    eye(c, x - r * 0.22, y - r * 0.05, r * 0.11, r * 0.14, (0, 0), 1.0)
+    eye(c, x + r * 0.22, y - r * 0.05, r * 0.11, r * 0.14, (0, 0), 1.0)
+
+
+def dog_bed(c, x, y=GROUND_Y + 110, s=1.0):
+    c.save(); c.translate(x, y); c.scale(s, s)
+    oval(c, 0, -30, 150, 46, 0xFF8E5CF7, 5)
+    oval(c, 0, -40, 118, 30, 0xFFB79CFF, 0)
+    c.restore()
+
+
+def toothbrush(c, x, y, rot=0.0, s=1.0):
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(s, s)
+    r = skia.RRect.MakeRectXY(skia.Rect.MakeLTRB(-60, -6, 20, 6), 6, 6)
+    c.drawRRect(r, fill(0xFF3D8BFF)); c.drawRRect(r, stroke(INK, 3.5))
+    c.drawRect(skia.Rect.MakeLTRB(14, -16, 34, -4), fill(0xFFFFFFFF)); c.drawRect(skia.Rect.MakeLTRB(14, -16, 34, -4), stroke(INK, 3))
+    circle(c, 24, -20, 7, 0xFFFFFFFF, 2.5)
+    c.restore()
