@@ -7,6 +7,7 @@ import numpy as np
 import episode as PE  # shared Scene / camera / prompt helpers from the Pip engine
 import audio as A
 import voice
+from audio import envelope as _envelope
 
 PE.speak = voice.speak
 Scene, cam, prompt, hero_rays = PE.Scene, PE.cam, PE.prompt, PE.hero_rays
@@ -72,6 +73,47 @@ def sfx_wag():
 
 A.SFX.update({"wag": sfx_wag, "roll": sfx_roll, "squeak": sfx_squeak, "pok": sfx_pok, "patter": sfx_patter, "mrrp": sfx_mrrp,
               "scratch": sfx_scratch, "sniff": sfx_sniff})
+
+
+# ---------------------------------------------------------------- songs
+SONGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "songs")
+THEME_LYRICS = [(0.0, "Biscuit and Friends!"), (4.0, "Woof! Woof!"), (6.0, "Mittens and Prickles, too!"),
+                (12.0, "Big or small, we help them all,"), (18.0, "Friends help friends, that's what we do!"),
+                (24.0, "Biscuit and Friends!"), (28.0, "Hooray!")]
+
+
+def load_song(name):
+    import subprocess
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(SONGS, name), "-f", "f32le", "-ac", "1",
+                          "-ar", str(A.SR), "-"], capture_output=True, check=True).stdout
+    return np.frombuffer(raw, np.float32).copy()
+
+
+def add_song(s, name, key, gain=0.9):
+    """Play a sung track as part of the scene; music underneath drops out completely."""
+    y = load_song(name)
+    d = len(y) / A.SR
+    s.lines.append(dict(who="song", start=s.t, end=s.t + d, y=y, env=_envelope(y), gain=gain))
+    s.m[key] = s.t
+    s.m[key + "_end"] = s.t + d
+    s.duck_zero.append((s.t - 0.3, s.t + d + 0.5, 0.0))
+    s.t += d + 0.3
+
+
+def theme_card(c, t, s):
+    """End card while the theme song plays: everyone bounces and sings, words bounce along."""
+    tt = t - s.M("end")
+    hero_rays(c, t * 0.4, 0xFF6CC8FF, 0xFF8ED8FF)
+    k = ease_out(tt / 0.8)
+    sing = s.mouth("song", t)
+    beat = hop((tt % 0.5), 0, 0.5, 26)
+    text(c, "BISCUIT & FRIENDS", 640, 110, 92, 0xFFFFD93B, scale=k * (1 + 0.03 * math.sin(tt * 12.6)), ow=14)
+    draw_mittens(c, 380, 610 + beat * 0.6, 0.95 * k, t, mouth=sing, paw_up=0.5 + 0.5 * math.sin(t * 6))
+    draw_biscuit(c, 640, 620 + beat, 1.05 * k, t, mouth=sing, ears=0.7, wag=1.8)
+    draw_prickles(c, 900, 620 + beat * 0.8, 1.0 * k, t, mouth=sing, face=-1)
+    for i, (st, line) in enumerate(THEME_LYRICS):
+        en = THEME_LYRICS[i + 1][0] if i + 1 < len(THEME_LYRICS) else 30.5
+        PE.lyric(c, line, tt, st, en, y=290)
 
 
 # ---------------------------------------------------------------- helpers
@@ -536,7 +578,7 @@ def build():
     s.say("biscuit", "[sigh] Best ball day ever.", key="best", gap=0.5)
     s.say("biscuit", "Bye, friends! See you next time!", key="b2", gap=0.2)
     s.say("mittens", "Bye-bye.", key="m2", gap=0.5)
-    s.mark("end"); s.fx("choir", gain=0.5); s.wait(3.6)
+    s.mark("end"); add_song(s, "theme.mp3", "theme")
 
     def d10(c, t, s=s):
         if t < s.M("end"):
@@ -561,14 +603,7 @@ def build():
                     c.drawPath(hp_, fill(alpha(0xFFFF6B9A, (1 - ph) * hk)))
             c.restore()
         else:
-            tt = t - s.M("end")
-            hero_rays(c, t * 0.3, 0xFF8FD6FF, 0xFFA8E0FF)
-            k = ease_out(tt / 0.8)
-            text(c, "BISCUIT & FRIENDS", 640, 150, 96, 0xFFFFD93B, scale=k, ow=14)
-            draw_mittens(c, 380, 600, 0.95 * k, t, paw_up=0.5 + 0.5 * math.sin(t * 6))
-            draw_biscuit(c, 640, 610, 1.05 * k, t, ears=0.7, wag=1.6)
-            draw_prickles(c, 900, 610, 1.0 * k, t, face=-1)
-            text(c, "SEE YOU NEXT TIME!", 640, 680, 44, 0xFFFFFFFF, scale=back_out((tt - 0.4) / 0.4))
+            theme_card(c, t, s)
     s.draw = d10
     S.append(s)
     return finish(S)

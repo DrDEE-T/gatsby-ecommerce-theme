@@ -80,13 +80,15 @@ def build_audio(path):
         if sc.music:
             m = A.music(sc.music, sc.dur + 0.3) * 0.5 * sc.music_gain
             # music drop-outs (dramatic pauses)
-            for (a, b) in sc.duck_zero:
+            for w in sc.duck_zero:
+                a, b = w[0], w[1]
+                lvl = w[2] if len(w) > 2 else 0.12
                 ia, ib = int(a * A.SR), int(b * A.SR)
                 rampn = int(0.25 * A.SR)
                 g = np.ones(len(m))
-                g[ia:ib] = 0.12
-                g[max(ia - rampn, 0):ia] = np.linspace(1, 0.12, ia - max(ia - rampn, 0))
-                g[ib:ib + rampn] = np.linspace(0.12, 1, len(g[ib:ib + rampn]))
+                g[ia:ib] = lvl
+                g[max(ia - rampn, 0):ia] = np.linspace(1, lvl, ia - max(ia - rampn, 0))
+                g[ib:ib + rampn] = np.linspace(lvl, 1, len(g[ib:ib + rampn]))
                 m = m * g
             A.put(mus, m, st - 0.15)
         if sc.rain:

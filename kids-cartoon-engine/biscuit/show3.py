@@ -270,7 +270,7 @@ def build():
     s.wait(1.0)
     s.say("mittens", "Shh. Sweet dreams, Prickles.", key="m1", gap=0.3)
     s.say("narr", "Bye-bye, friends! See you next time!", key="n1", gap=0.4)
-    s.mark("end"); s.fx("choir", gain=0.4); s.wait(3.6)
+    s.mark("end"); add_song(s, "theme.mp3", "theme")
 
     def d7(c, t, s=s):
         if t < s.M("end"):
@@ -294,15 +294,7 @@ def build():
                               blink=1.0 if s.M("p2") < t < s.M("p2_end") and int(t * 2) % 2 == 0 else None)
             c.restore()
         else:
-            tt = t - s.M("end")
-            hero_rays(c, t * 0.3, 0xFF8FD6FF, 0xFFA8E0FF)
-            k = ease_out(tt / 0.8)
-            text(c, "BISCUIT & FRIENDS", 640, 150, 96, 0xFFFFD93B, scale=k, ow=14)
-            draw_mittens(c, 380, 600, 0.95 * k, t, paw_up=0.5 + 0.5 * math.sin(t * 6))
-            draw_biscuit(c, 640, 610, 1.05 * k, t, ears=0.7, wag=1.2)
-            draw_prickles(c, 900, 610, 1.0 * k, t, roll=0)
-            zzz(c, 930, 520, t, k)
-            text(c, "SEE YOU NEXT TIME!", 640, 680, 44, 0xFFFFFFFF, scale=ease_out((tt - 0.4) / 0.6))
+            theme_card(c, t, s)
     s.draw = d7
     S.append(s)
     return finish(S)

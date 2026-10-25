@@ -4,6 +4,7 @@ import numpy as np
 import show  # registers the shared Biscuit sound effects and voice cache
 from show import *  # noqa: F401,F403
 import audio as A
+import os
 
 
 # ---------------------------------------------------------------- bath sound effects
@@ -344,39 +345,61 @@ def build():
     s.draw = d5
     S.append(s)
 
-    # ---------------- 6. RECAP CHANT: the repeating hook
-    s = Scene("recap", music="theme", trans="hero", music_gain=0.6)
+    # ---------------- 6. THE BATH SONG: sung sing-along (one-word swap, Baby Shark style)
+    import json as _json
+    lyr = []
+    for st, en, line in _json.load(open(os.path.join(SONGS, "bath_lyrics.json"))):
+        lparts = [p.strip() for p in line.replace("!", ".").split(". ") if p.strip()] if len(line) > 36 else [line]
+        short = []
+        for p in lparts:
+            if len(p) > 36 and ", " in p:
+                cuts = [i for i in range(len(p)) if p.startswith(", ", i)]
+                mid = min(cuts, key=lambda i: abs(i - len(p) / 2))
+                short += [p[:mid], p[mid + 2:]]
+            else:
+                short.append(p)
+        lparts = short
+        step = (en - st) / len(lparts)
+        for i, p in enumerate(lparts):
+            lyr.append((st + i * step, st + (i + 1) * step, p.rstrip(".")))
+    s = Scene("song", music=None, trans="hero")
     s.wait(0.3)
-    s.say("narr", "Let's say the bath steps together!", key="n1", gap=0.3)
-    s.say(["biscuit", "mittens", "prickles"], "Water! Bubbles! Scrub! Rinse! Dry!", key="c1", gap=0.6)
-    s.say("narr", "Your turn! Say it with Biscuit!", key="n2", gap=0.2)
-    s.mark("kids"); s.wait(4.0)
+    s.say("narr", "Let's sing the bath song! Scrub along with Biscuit!", key="n1", gap=0.3)
+    add_song(s, "bath.mp3", "bath", gain=1.0)
     s.say("narr", "Great job, friends!", key="n3", gap=0.2)
     s.fx("sparkle"); s.fx("ding8")
-    s.wait(0.8)
+    s.wait(0.6)
 
-    def d_recap(c, t, s=s):
-        hero_rays(c, t * 0.5, 0xFF8FD6FF, 0xFFA8E0FF)
-        draw_mittens(c, 300, 690, 0.9, t, mouth=s.mouth("mittens", t), face=1)
-        draw_biscuit(c, 640, 700, 1.0, t, mouth=s.mouth("biscuit", t), face=1, ears=0.7, wag=1.4)
-        draw_prickles(c, 980, 700, 0.95, t, mouth=s.mouth("prickles", t), face=-1)
-        # light up each step word as it is said (and during the kids' turn)
-        hi = -1
-        for (a, d) in ((s.M("c1"), s.M("c1_end") - s.M("c1")), (s.M("kids") + 0.3, 3.2)):
-            if a < t < a + d:
-                hi = min(int((t - a) / d * 5), 4)
-        for i in range(5):
-            x, y = 240 + i * 200, 170
-            on = i == hi
-            sc = 1.25 if on else 1.0
-            circle(c, x, y, 62 * sc, STEP_COLS[i] if on or t > s.M("n3") else 0xFFFFFFFF, 6)
-            text(c, str(i + 1), x, y, 60 * sc, 0xFFFFFFFF if on or t > s.M("n3") else STEP_COLS[i], ow=0)
-            text(c, STEP_NAMES[i], x, y + 92, 34 * sc, 0xFFFFD93B if on else 0xFFFFFFFF, ow=6)
-        if s.M("kids") < t < s.M("n3"):
-            text(c, "YOUR TURN!", 640, 400, 70, 0xFFFFD93B, scale=1 + 0.06 * math.sin(t * 8))
+    def d_song(c, t, s=s, lyr=lyr):
+        st0 = s.M("bath")
+        tt = t - st0
+        hero_rays(c, t * 0.4, 0xFF8FD6FF, 0xFFA8E0FF)
+        floating_bubbles(c, t, 640, 760, 10, 1200, 8)
+        cur = ""
+        for (a_, b_, line) in lyr:
+            if a_ <= tt < b_:
+                cur = line
+                PE.lyric(c, line, tt, a_, b_, y=120)
+        sing = s.mouth("song", t)
+        scrub = "crub" in cur or "rinse" in cur.lower() or "rub" in cur
+        beat = hop((tt % 0.536), 0, 0.536, 22) if 0 < tt < 72 else 0
+        tub_back(c, 640, 730, 1.0)
+        draw_biscuit(c, 640 + (math.sin(t * 14) * 5 if scrub else 0), 630 + beat * 0.4, 1.0, t, mouth=sing, face=1,
+                     ears=0.7, wag=1.6)
+        tub_front(c, 640, 730, 1.0, water=0.75, t=t, bubbles=1.0)
+        draw_mittens(c, 270, 690 + beat * 0.6, 0.9, t, mouth=sing, face=1, paw_up=0.5 + 0.5 * math.sin(t * 10) if scrub else 0.3)
+        draw_prickles(c, 1010, 690 + beat * 0.6, 0.95, t, mouth=sing, face=-1, wiggle=0.4 if scrub else 0)
+        # big picture cue for the body part being scrubbed
+        cue = None
+        for w, col in (("tummy", 0xFFFFC21A), ("ears", 0xFFFF9BD5), ("paws", 0xFF6CCB5F), ("rinse", 0xFF3D8BFF), ("towel", 0xFF8E5CF7)):
+            if w in cur.lower():
+                cue = (w, col)
+        if cue:
+            circle(c, 640, 330, 64, cue[1], 6)
+            text(c, cue[0].upper(), 640, 330, 44 if len(cue[0]) < 6 else 36, 0xFFFFFFFF, ow=6)
         if t > s.M("n3"):
-            sparkles(c, 640, 300, t, 12, 320)
-    s.draw = d_recap
+            sparkles(c, 640, 400, t, 12, 320)
+    s.draw = d_song
     S.append(s)
 
     # ---------------- 7. CLEAN, FLUFFY, CALM
@@ -396,7 +419,7 @@ def build():
     s.say("biscuit", "[sigh] Bath time, then bedtime.", key="b2", gap=0.4)
     s.say("narr", "Bath time is done! Bye-bye, friends!", key="bye", gap=0.2)
     s.say(["biscuit", "mittens", "prickles"], "Bye!", key="all", gap=0.4)
-    s.mark("end"); s.fx("choir", gain=0.5); s.wait(3.6)
+    s.mark("end"); add_song(s, "theme.mp3", "theme")
 
     def d6(c, t, s=s):
         if t < s.M("end"):
@@ -427,15 +450,7 @@ def build():
                     c.drawPath(hp_, fill(alpha(0xFFFF6B9A, (1 - ph) * hk)))
             c.restore()
         else:
-            tt = t - s.M("end")
-            hero_rays(c, t * 0.3, 0xFF8FD6FF, 0xFFA8E0FF)
-            floating_bubbles(c, t, 640, 760, 10, 1100, 5)
-            k = ease_out(tt / 0.8)
-            text(c, "BISCUIT & FRIENDS", 640, 150, 96, 0xFFFFD93B, scale=k, ow=14)
-            draw_mittens(c, 380, 600, 0.95 * k, t, paw_up=0.5 + 0.5 * math.sin(t * 6))
-            draw_biscuit(c, 640, 610, 1.05 * k, t, ears=0.7, wag=1.2)
-            draw_prickles(c, 900, 610, 1.0 * k, t, face=-1)
-            text(c, "SEE YOU NEXT TIME!", 640, 680, 44, 0xFFFFFFFF, scale=ease_out((tt - 0.4) / 0.6))
+            theme_card(c, t, s)
     s.draw = d6
     S.append(s)
     return finish(S)
