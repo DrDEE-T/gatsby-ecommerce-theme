@@ -32,3 +32,18 @@
 | No grown-up mentioned in the bath episode | "With a grown-up, fill the tub with warm water." |
 | Confusing Ep 2 closing line | Mittens: "Now it's almost bedtime." |
 | Shorts framing too wide; overlap in Short 2; 5 seconds of dead air in Short 3 | Closer framing, overlap fixed, dead air cut to 1.6 seconds with a sunrise cue |
+
+## Second independent audit, and the fixes made
+
+| Finding | Fix |
+|---|---|
+| Ep 2 still played the full 31-second theme, with mouths moving to the singer | Uses the 12-second outro like Ep 1 and Ep 3; mouths closed while the singer sings |
+| Ep 1 "Psst. Friends" could be heard as a rude word | Now "Hey, friends! Did you see something red?" |
+| Ep 2 song badges covered Biscuit's face | Badges moved to the top-right corner |
+| Some kids' turns still short ("Can you scrub/brush with Biscuit?", "Is Biscuit clean yet?") | 3 to 3.5 seconds |
+| Ep 3 had no "Oopsie-prickle" and a bright yellow wipe | Catchphrase added; soft bubble transition instead |
+| Unclear words ("Shh" heard as "Shoo", "Minty fresh" as "Minty flesh", "super finders" as "super fine girls") | "Shh" lines reworded, "Minty clean!", "super helpers" |
+| Shorts loosely framed, Mittens clipped, Prickles overlapping Biscuit | Characters raised to mid-frame, spacing fixed |
+| Short 3 quieter than the others | Volume raised to match |
+
+Final safety check: every video's full audio transcribed with two speech models (medium.en and small.en). No rude-sounding words in any video.

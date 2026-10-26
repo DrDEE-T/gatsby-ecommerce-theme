@@ -231,14 +231,14 @@ def build():
     s = Scene("scrub", music="theme", trans="bubble", music_gain=0.5)
     s.fx("splash_small", 0.3)
     s.wait(0.6)
-    s.say("narr", "Step three. Scrub, scrub, scrub! Can you scrub with Biscuit?", key="s3", gap=1.5)
+    s.say("narr", "Step three. Scrub, scrub, scrub! Can you scrub with Biscuit?", key="s3", gap=3.0)
     parts = [("tummy", "body"), ("ears", "ears"), ("paws", "paws"), ("tail", None)]
     for i, (word, part) in enumerate(parts):
         s.say(["biscuit", "mittens"], f"Scrub your {word}!", key=f"sc{i}", gap=0.1)
         s.mark(f"kids{i}"); s.fx("scrub"); s.wait(3.0)
         if i == 0:
             s.say("narr", "Is Biscuit clean yet?", key="ask1", gap=0.1)
-            s.mark("no_kids"); s.wait(3.0)
+            s.mark("no_kids"); s.wait(3.5)
             s.say("narr", "No! Keep scrubbing!", key="no", gap=0.3)
     s.say("narr", "Now is Biscuit clean?", key="ask2", gap=0.1)
     s.mark("yes_kids"); s.wait(3.0)
@@ -390,8 +390,8 @@ def build():
             if a_ <= tt < b_:
                 PE.lyric(c, line, tt, a_, b_, y=120)
         if cue:
-            circle(c, 640, 330, 64, cue[1], 6)
-            text(c, cue[0].upper(), 640, 330, 44 if len(cue[0]) < 6 else 36, 0xFFFFFFFF, ow=6)
+            circle(c, 1110, 250, 64, cue[1], 6)
+            text(c, cue[0].upper(), 1110, 250, 44 if len(cue[0]) < 6 else 36, 0xFFFFFFFF, ow=6)
         if t > s.M("n3"):
             sparkles(c, 640, 400, t, 12, 320)
     s.draw = d_song
@@ -414,7 +414,7 @@ def build():
     s.say("mittens", "Now it's almost bedtime.", key="b2", gap=0.4)
     s.say("narr", "Bath time is done! Bye-bye, friends!", key="bye", gap=0.2)
     s.say(["biscuit", "mittens", "prickles"], "Bye!", key="all", gap=0.4)
-    s.mark("end"); add_song(s, "theme.mp3", "theme")
+    s.mark("end"); add_song(s, outro_song(), "theme")
 
     def d6(c, t, s=s):
         if t < s.M("end"):

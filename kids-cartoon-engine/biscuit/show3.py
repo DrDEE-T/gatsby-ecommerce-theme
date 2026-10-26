@@ -112,13 +112,13 @@ def build():
     S.append(s)
 
     # ---------------- 3. STEP 1: BRUSH (kids brush along)
-    s = Scene("brush", music="theme", trans="boots", music_gain=0.45)
+    s = Scene("brush", music="theme", trans="bubble", music_gain=0.45)
     s.wait(0.3)
-    s.say("narr", "Step one. Brush your teeth! Can you brush with Biscuit?", key="n1", gap=0.2)
+    s.say("narr", "Step one. Brush your teeth! Can you brush with Biscuit?", key="n1", gap=3.0)
     for i, w in enumerate(["top", "bottom"]):
         s.say(["biscuit", "mittens"], f"Brush the {w} teeth!", key=f"br{i}", gap=0.1)
         s.mark(f"b{i}"); s.fx("scrub"); s.wait(3.0)
-    s.say("biscuit", "[laugh] Minty fresh!", key="fresh", gap=0.2)
+    s.say("biscuit", "[laugh] Minty clean!", key="fresh", gap=0.2)
     s.mark("done1"); s.fx("ding5"); s.fx("sparkle")
     s.wait(0.8)
 
@@ -156,7 +156,7 @@ def build():
     s.say("biscuit", "[sigh] I'm a little bit sleepy.", key="b1", gap=0.2)
     s.say("narr", "Uh oh! Biscuit did a big yawn! Can you do a big yawn?", key="n2", gap=0.1)
     s.mark("kids"); s.wait(3.5)
-    s.say("prickles", "Not me! [laugh] I'm wide awake!", key="p1", gap=0.3)
+    s.say("prickles", "Oopsie-prickle! Not me! I'm wide awake!", key="p1", gap=0.3)
     s.mark("done2"); s.fx("ding6", gain=0.6)
     s.wait(0.6)
 
@@ -259,7 +259,7 @@ def build():
     # ---------------- 7. SLEEP, THEN MORNING (Prickles' turn to sleep)
     s = Scene("sleep", music="brave", trans="fade", music_gain=0.4)
     s.wait(1.6)
-    s.say("prickles", "Shh... They're sleeping. I'll keep watch all night.", key="p1", gap=0.3)
+    s.say("prickles", "They're sleeping. I'll keep watch all night.", key="p1", gap=0.3)
     s.wait(2.4)
     s.say("narr", "Goodnight, friends. Sweet dreams!", key="n1", gap=0.6)
     s.mark("end"); s.fx("choir", gain=0.35); s.wait(5.0)

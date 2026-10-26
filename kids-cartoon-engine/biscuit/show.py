@@ -201,7 +201,7 @@ def build():
     s.wait(4.1)
     s.say("narr", "Uh oh! Did you see that?", key="uh", gap=0.1)
     s.mark("kids"); s.wait(3.0)
-    s.say("narr", "Shh. It's our secret!", key="shh", gap=0.6)
+    s.say("narr", "It's our secret!", key="shh", gap=0.6)
 
     def d_secret(c, t, s=s):
         cam(c, 1.25, 560, 460)
@@ -301,9 +301,9 @@ def build():
     s.say("prickles", "[chuckle] Oopsie-prickle! Hi, everybody!", key="p1", gap=0.3)
     s.say("mittens", "Prickles, you have a flower on your spikes.", key="m1", gap=0.3)
     s.say("prickles", "Do I? Ooh, pretty!", key="p2", gap=0.6)
-    s.say("narr", "Psst. Friends. Did you see something red?", key="psst", gap=0.1)
+    s.say("narr", "Hey, friends! Did you see something red?", key="psst", gap=0.1)
     s.mark("kids"); s.fx("sparkle", s.t + 0.2); s.wait(3.0)
-    s.say("narr", "Shh. Let's keep watching!", key="shh", gap=0.6)
+    s.say("narr", "Let's keep watching!", key="shh", gap=0.6)
 
     def d3(c, t, s=s):
         z, cx, cy = 1.15, 600, 450
@@ -422,7 +422,7 @@ def build():
     s.wait(0.3)
     s.say("mittens", "Cats are good at climbing. I'll look up high.", key="m1", gap=0.2)
     s.mark("climb"); s.fx("scratch"); s.wait(1.6)
-    s.say("mittens", "Shh... It's a nest with baby birds. Let's count them, quietly.", key="m2", gap=0.3)
+    s.say("mittens", "Quietly now. It's a nest with baby birds. Let's count them.", key="m2", gap=0.3)
     for i, w in enumerate(["One.", "Two.", "Three."]):
         s.mark(f"n{i}"); s.fx(f"ding{i + 1}", gain=0.5)
         s.say("narr", w, gap=0.5)
@@ -506,7 +506,7 @@ def build():
     s.say("biscuit", "[laugh] That's okay! Woof! Woof! Hooray!", key="b2", gap=0.3)
     s.say("mittens", "Purr-fect.", key="m1", gap=0.3)
     s.fx("sparkle")
-    s.say("biscuit", "Thank you, friends! You found it! You're super finders!", key="b3", gap=0.7)
+    s.say("biscuit", "Thank you, friends! You found it! You're super helpers!", key="b3", gap=0.7)
     s.duck_zero.append((s.M("hush"), s.M("b1")))
 
     def d8(c, t, s=s):

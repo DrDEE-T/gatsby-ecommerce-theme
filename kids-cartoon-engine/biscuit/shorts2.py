@@ -109,14 +109,14 @@ def buildA():
         # the song comes from an off-screen singer: mouths only open for Woof and Hooray
         woof = 0.8 if 4.0 < tt < 6.0 and (tt % 1.0) < 0.45 else 0.0
         cheer = 0.8 if tt > 28.0 else 0.0
-        vcam(c, 1.85, 570, 455)
+        vcam(c, 1.85, 575, 520)
         garden(c, t, props=())
         tree(c, 745, 560, 0.72)
         # Biscuit pops up on frame 1
         bk = back_out(ramp(tt, 0.0, 0.5))
         sad = 1.0 if 12.8 < tt < 20.6 else 0.0
         jump = hop(tt, 4.0, 0.5, 70) + hop(tt, 5.0, 0.5, 70) + hop(tt, 28.0, 0.7, 140)
-        bx = 560 if tt < 24 else lerp(560, 600, ease(ramp(tt, 24, 25)))
+        bx = 540 if tt < 24 else lerp(540, 590, ease(ramp(tt, 24, 25)))
         draw_biscuit(c, bx, SY + (1 - bk) * 300 + (0 if sad else beat) + jump, 1.0, t, mouth=max(woof, cheer),
                      face=1, ears=-0.8 if sad else 0.7, wag=0.2 if sad else 1.8, sad=sad, look=(0.5, -1) if sad else (0, 0))
         # Mittens slides in, later leaps to the tree
@@ -133,11 +133,11 @@ def buildA():
         # Prickles rolls in
         if tt > 8.4:
             if tt < 9.6:
-                px = lerp(900, 700, ramp(tt, 8.4, 9.4))
+                px = lerp(900, 725, ramp(tt, 8.4, 9.4))
                 draw_prickles(c, px, SY, 0.9, t, roll=-(tt * 700))
             else:
                 items = ["ball"] if 20.2 < tt < 22.0 else []
-                px = 700 if tt < 24 else lerp(700, 740, ease(ramp(tt, 24, 25)))
+                px = 725 if tt < 24 else lerp(725, 745, ease(ramp(tt, 24, 25)))
                 draw_prickles(c, px, SY + beat * 0.8 + hop(tt, 28.0, 0.7, 120), 0.9, t, mouth=cheer, face=-1,
                               items=items, sparkle=1.0 if items else 0, look=(-1, -0.6) if 12.8 < tt < 20.2 else (-1, 0))
         # the ball: bounced up into the tree (problem), knocked down (help), lands on spikes, back to Biscuit
@@ -186,7 +186,7 @@ def buildB():
         beat = hop(tt % 0.536, 0, 0.536, 20)
         # off-screen singer: characters only open their mouths to cheer Hooray
         cheer = 0.8 if tt > 21.5 else 0.0
-        vcam(c, 1.45, 565, 410)
+        vcam(c, 1.45, 575, 480)
         garden(c, t, props=())
         # tub slides in after the mud splash
         tub_x = lerp(1000, 580, ease_out(ramp(tt, 2.0, 3.0)))
@@ -224,7 +224,7 @@ def buildB():
                 sparkles(c, bx, 500, t, 8, 90)
         # friends dance on the sides; Mittens gets splashed by the shake
         wet = tt > 18.3
-        draw_mittens(c, 360, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=1,
+        draw_mittens(c, 400, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=1,
                      lid=0.0 if 18.3 < tt < 19.6 else 0.25, paw_up=0.5 + 0.5 * math.sin(t * 9))
         if wet and tt < 21.5:
             for i in range(4):
@@ -274,7 +274,7 @@ def buildC():
         if t >= s.M("end"):
             return end_card(c, t, s)
         m = ease(ramp(t, s.M("morning"), s.M("morning") + 0.9))
-        vcam(c, 1.6, 580, 430)
+        vcam(c, 1.6, 580, 500)
         garden(c, t, props=(), sun_set=lerp(1.0, 0.2, m))
         dusk_overlay(c, 1.0 - m, 0.0)
         night_sky(c, t, 1.0 - m)
