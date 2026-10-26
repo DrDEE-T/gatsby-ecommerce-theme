@@ -106,7 +106,9 @@ def buildA():
             return end_card(c, t, s)
         tt = t - s.M("song")
         beat = hop(tt % BEAT, 0, BEAT, 22)
-        sing = s.mouth("song", t)
+        # the song comes from an off-screen singer: mouths only open for Woof and Hooray
+        woof = 0.8 if 4.0 < tt < 6.0 and (tt % 1.0) < 0.45 else 0.0
+        cheer = 0.8 if tt > 28.0 else 0.0
         vcam(c, 1.6, 600, 430)
         garden(c, t, props=())
         tree(c, 800, 560, 0.75)
@@ -115,7 +117,7 @@ def buildA():
         sad = 1.0 if 12.8 < tt < 20.6 else 0.0
         jump = hop(tt, 4.0, 0.5, 70) + hop(tt, 5.0, 0.5, 70) + hop(tt, 28.0, 0.7, 140)
         bx = 560 if tt < 24 else lerp(560, 600, ease(ramp(tt, 24, 25)))
-        draw_biscuit(c, bx, SY + (1 - bk) * 300 + (0 if sad else beat) + jump, 1.0, t, mouth=sing if not sad else 0,
+        draw_biscuit(c, bx, SY + (1 - bk) * 300 + (0 if sad else beat) + jump, 1.0, t, mouth=max(woof, cheer),
                      face=1, ears=-0.8 if sad else 0.7, wag=0.2 if sad else 1.8, sad=sad, look=(0.5, -1) if sad else (0, 0))
         # Mittens slides in, later leaps to the tree
         if tt > 6.4:
@@ -127,7 +129,7 @@ def buildA():
             if tt > 24:
                 mx = lerp(420, 450, ease(ramp(tt, 24, 25)))
             draw_mittens(c, mx, my + (beat * 0.7 if not (18.6 < tt < 20.6) else 0) + hop(tt, 28.0, 0.7, 120), 0.85, t,
-                         mouth=sing, face=1, paw_up=0.5 + 0.5 * math.sin(t * 8) if tt > 24 else 0)
+                         mouth=cheer, face=1, paw_up=0.5 + 0.5 * math.sin(t * 8) if tt > 24 else 0)
         # Prickles rolls in
         if tt > 8.4:
             if tt < 9.6:
@@ -136,7 +138,7 @@ def buildA():
             else:
                 items = ["ball"] if 20.2 < tt < 22.0 else []
                 px = 700 if tt < 24 else lerp(700, 740, ease(ramp(tt, 24, 25)))
-                draw_prickles(c, px, SY + beat * 0.8 + hop(tt, 28.0, 0.7, 120), 0.9, t, mouth=sing, face=-1,
+                draw_prickles(c, px, SY + beat * 0.8 + hop(tt, 28.0, 0.7, 120), 0.9, t, mouth=cheer, face=-1,
                               items=items, sparkle=1.0 if items else 0, look=(-1, -0.6) if 12.8 < tt < 20.2 else (-1, 0))
         # the ball: bounced up into the tree (problem), knocked down (help), lands on spikes, back to Biscuit
         if 12.4 < tt < 20.2:
@@ -182,7 +184,8 @@ def buildB():
             return end_card(c, t, s)
         tt = t - s.M("song")
         beat = hop(tt % 0.536, 0, 0.536, 20)
-        sing = s.mouth("song", t)
+        # off-screen singer: characters only open their mouths to cheer Hooray
+        cheer = 0.8 if tt > 21.5 else 0.0
         vcam(c, 1.45, 565, 410)
         garden(c, t, props=())
         # tub slides in after the mud splash
@@ -197,10 +200,10 @@ def buildB():
             # frame 1: Biscuit leaps into the mud
             bx = lerp(390, 440, ramp(tt, 0.0, 0.35)) if tt < 0.35 else lerp(420, tub_x, ease(ramp(tt, 4.4, 5.0)))
             by = SY + 10 + hop(tt, 0.0, 0.35, 110) + hop(tt, 4.4, 0.6, 160) + (beat if 0.6 < tt < 4.4 else 0)
-            draw_biscuit(c, bx, by, 1.0, t, mouth=sing, face=1, mud=ease(ramp(tt, 0.3, 0.4)), ears=0.7, wag=1.8)
+            draw_biscuit(c, bx, by, 1.0, t, mouth=cheer, face=1, mud=ease(ramp(tt, 0.3, 0.4)), ears=0.7, wag=1.8)
             splash_fx(c, 420, 668, s.M("song") + 0.35, t, 1.0, 0xFF8B5A2B)
         elif in_tub:
-            draw_biscuit(c, tub_x + math.sin(t * 14) * 5 * (tt > 8.6), 610 + beat * 0.3, 1.0, t, mouth=sing, face=1,
+            draw_biscuit(c, tub_x + math.sin(t * 14) * 5 * (tt > 8.6), 610 + beat * 0.3, 1.0, t, mouth=cheer, face=1,
                          mud=1 - clean, ears=0.7, wag=1.6)
         if tt > 2.0:
             tub_front(c, tub_x, 700, 0.9, water=0.75, t=t, bubbles=ease(ramp(tt, 5.0, 6.0)) * (0 if out else 1))
@@ -209,7 +212,7 @@ def buildB():
             bx = lerp(tub_x, 480, ease(k))
             shaking = 18.0 < tt < 19.4
             draw_biscuit(c, bx, SY + hop(tt, 17.6, 0.6, 140) + (beat if tt > 19.4 else 0) + hop(tt, 21.5, 0.7, 120), 1.0, t,
-                         mouth=sing, face=-1, ears=0.7, wag=2.0, tilt=math.sin(t * 40) * 12 if shaking else 0,
+                         mouth=cheer, face=-1, ears=0.7, wag=2.0, tilt=math.sin(t * 40) * 12 if shaking else 0,
                          blink=1.0 if shaking else None)
             if shaking:
                 for i in range(14):
@@ -221,13 +224,13 @@ def buildB():
                 sparkles(c, bx, 500, t, 8, 90)
         # friends dance on the sides; Mittens gets splashed by the shake
         wet = tt > 18.3
-        draw_mittens(c, 385, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=sing, face=1,
+        draw_mittens(c, 385, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=1,
                      lid=0.0 if 18.3 < tt < 19.6 else 0.25, paw_up=0.5 + 0.5 * math.sin(t * 9))
         if wet and tt < 21.5:
             for i in range(4):
                 ph = (t * 1.2 + i / 4) % 1
                 circle(c, 350 + i * 20, 540 + ph * 120, 5, 0xCC7FD3FF, 0)
-        draw_prickles(c, 745, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=sing, face=-1, look=(-1, -0.3))
+        draw_prickles(c, 745, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=-1, look=(-1, -0.3))
         for i, tp in enumerate((10.0, 12.5, 15.0)):
             if tp - 0.8 < tt < tp + 0.3:
                 k = ramp(tt, tp - 0.8, tp)

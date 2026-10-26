@@ -380,7 +380,8 @@ def build():
             if a_ <= tt < b_:
                 cur = line
                 PE.lyric(c, line, tt, a_, b_, y=120)
-        sing = s.mouth("song", t)
+        # off-screen singer: characters only open their mouths to cheer "Hooray!"
+        sing = 0.8 if 59.4 < tt < 61.4 else 0.0
         scrub = "crub" in cur or "rinse" in cur.lower() or "rub" in cur
         beat = hop((tt % 0.536), 0, 0.536, 22) if 0 < tt < 72 else 0
         tub_back(c, 640, 730, 1.0)

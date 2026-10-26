@@ -105,12 +105,14 @@ def theme_card(c, t, s):
     tt = t - s.M("end")
     hero_rays(c, t * 0.4, 0xFF6CC8FF, 0xFF8ED8FF)
     k = ease_out(tt / 0.8)
-    sing = s.mouth("song", t)
+    # the theme comes from an off-screen singer: Biscuit only barks on "Woof! Woof!", everyone cheers "Hooray!"
+    woof = 0.8 if 4.0 < tt < 6.0 and (tt % 1.0) < 0.45 else 0.0
+    cheer = 0.8 if tt > 28.0 else 0.0
     beat = hop((tt % 0.5), 0, 0.5, 26)
     text(c, "BISCUIT & FRIENDS", 640, 110, 92, 0xFFFFD93B, scale=k * (1 + 0.03 * math.sin(tt * 12.6)), ow=14)
-    draw_mittens(c, 380, 610 + beat * 0.6, 0.95 * k, t, mouth=sing, paw_up=0.5 + 0.5 * math.sin(t * 6))
-    draw_biscuit(c, 640, 620 + beat, 1.05 * k, t, mouth=sing, ears=0.7, wag=1.8)
-    draw_prickles(c, 900, 620 + beat * 0.8, 1.0 * k, t, mouth=sing, face=-1)
+    draw_mittens(c, 380, 610 + beat * 0.6, 0.95 * k, t, mouth=cheer, paw_up=0.5 + 0.5 * math.sin(t * 6))
+    draw_biscuit(c, 640, 620 + beat, 1.05 * k, t, mouth=max(woof, cheer), ears=0.7, wag=1.8)
+    draw_prickles(c, 900, 620 + beat * 0.8, 1.0 * k, t, mouth=cheer, face=-1)
     for i, (st, line) in enumerate(THEME_LYRICS):
         en = THEME_LYRICS[i + 1][0] if i + 1 < len(THEME_LYRICS) else 30.5
         PE.lyric(c, line, tt, st, en, y=290)
