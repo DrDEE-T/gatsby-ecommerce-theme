@@ -117,7 +117,7 @@ def build():
     s.say("narr", "Step one. Brush your teeth! Can you brush with Biscuit?", key="n1", gap=0.2)
     for i, w in enumerate(["top", "bottom"]):
         s.say(["biscuit", "mittens"], f"Brush the {w} teeth!", key=f"br{i}", gap=0.1)
-        s.mark(f"b{i}"); s.fx("scrub"); s.wait(1.8)
+        s.mark(f"b{i}"); s.fx("scrub"); s.wait(3.0)
     s.say("biscuit", "[laugh] Minty fresh!", key="fresh", gap=0.2)
     s.mark("done1"); s.fx("ding5"); s.fx("sparkle")
     s.wait(0.8)
@@ -125,7 +125,7 @@ def build():
     def d3(c, t, s=s):
         cam(c, 1.5, 560, 470)
         world3(c, t, sun_set=1.0, sunset=1.0, night=0.55, bed=False)
-        brushing = any(s.M(f"b{i}") < t < s.M(f"b{i}") + 1.8 for i in range(2))
+        brushing = any(s.M(f"b{i}") < t < s.M(f"b{i}") + 3.0 for i in range(2))
         draw_biscuit(c, 470, GY, 1.0, t, mouth=0.4 if brushing else s.mouth("biscuit", t), face=1, ears=0.6, wag=1.0,
                      blink=1.0 if s.M("fresh") < t < s.M("fresh_end") else None)
         hy = GY - 128 + 26
@@ -138,7 +138,7 @@ def build():
             sparkles(c, 470, 470, t, 8, 80)
         c.restore()
         for i, w in enumerate(["TOP", "BOTTOM"]):
-            prompt(c, f"BRUSH THE {w} TEETH!", t, s.M(f"br{i}"), s.M(f"b{i}") + 1.8, y=180, size=64)
+            prompt(c, f"BRUSH THE {w} TEETH!", t, s.M(f"br{i}"), s.M(f"b{i}") + 3.0, y=180, size=64)
         steps_bar3(c, t, s, ["done1", None, None, None])
     s.draw = d3
     S.append(s)
@@ -155,7 +155,7 @@ def build():
     s.mark("yawn")
     s.say("biscuit", "[sigh] I'm a little bit sleepy.", key="b1", gap=0.2)
     s.say("narr", "Uh oh! Biscuit did a big yawn! Can you do a big yawn?", key="n2", gap=0.1)
-    s.mark("kids"); s.wait(2.2)
+    s.mark("kids"); s.wait(3.5)
     s.say("prickles", "Not me! [laugh] I'm wide awake!", key="p1", gap=0.3)
     s.mark("done2"); s.fx("ding6", gain=0.6)
     s.wait(0.6)
@@ -226,12 +226,12 @@ def build():
     things = ["tree", "stars", "moon"]
     for i, w in enumerate(things):
         s.say(["biscuit", "mittens"], f"Goodnight, {w}!", key=f"g{i}", gap=0.1)
-        s.mark(f"k{i}"); s.wait(1.7)
+        s.mark(f"k{i}"); s.wait(3.0)
     s.say(["biscuit", "mittens"], "Goodnight, friends!", key="g3", gap=0.4)
     s.mark("done4"); s.fx("ding8", gain=0.5); s.fx("sparkle")
     s.wait(0.6)
     for i in range(3):
-        s.duck_zero.append((s.M(f"k{i}") - 0.1, s.M(f"k{i}") + 1.6))
+        s.duck_zero.append((s.M(f"k{i}") - 0.1, s.M(f"k{i}") + 2.9))
 
     def d6(c, t, s=s):
         cam(c, 1.1, 640, 400)
@@ -244,13 +244,13 @@ def build():
         draw_prickles(c, 900, GY, 1.0, t, face=-1, look=(-0.5, -0.8))
         # highlight what we're saying goodnight to
         for i, w in enumerate(things):
-            if s.M(f"g{i}") < t < s.M(f"k{i}") + 1.7:
+            if s.M(f"g{i}") < t < s.M(f"k{i}") + 3.0:
                 p = (0.5 + 0.5 * math.sin(t * 6))
                 spot = {"tree": (1110, 250), "stars": (330, 150), "moon": (960, 160)}[w]
                 c.drawCircle(spot[0], spot[1], 110 + 10 * p, stroke(alpha(0xFFFFD93B, 0.9), 8))
         c.restore()
         for i, w in enumerate(things):
-            prompt(c, f"GOODNIGHT, {w.upper()}!", t, s.M(f"k{i}") - 0.1, s.M(f"k{i}") + 1.7, y=200, size=70)
+            prompt(c, f"GOODNIGHT, {w.upper()}!", t, s.M(f"k{i}") - 0.1, s.M(f"k{i}") + 3.0, y=200, size=70)
         steps_bar3(c, t, s, ["_", "_", "_", "done4"])
     s.m["_"] = -1.0
     s.draw = d6
@@ -261,16 +261,8 @@ def build():
     s.wait(1.6)
     s.say("prickles", "Shh... They're sleeping. I'll keep watch all night.", key="p1", gap=0.3)
     s.wait(2.4)
-    s.mark("morning"); s.fx("chirp"); s.fx("chirp", s.t + 1.2)
-    s.wait(1.8)
-    s.say("biscuit", "[laugh] Good morning! I feel great!", key="b1", gap=0.2)
-    s.fx("wag", s.M("b1") + 0.3)
-    s.say("prickles", "[sigh] Good morning... Hedgehogs sleep in the daytime. Goodnight...", key="p2", gap=0.3)
-    s.mark("curl"); s.fx("roll", gain=0.4)
-    s.wait(1.0)
-    s.say("mittens", "Shh. Sweet dreams, Prickles.", key="m1", gap=0.3)
-    s.say("narr", "Bye-bye, friends! See you next time!", key="n1", gap=0.4)
-    s.mark("end"); add_song(s, "theme.mp3", "theme")
+    s.say("narr", "Goodnight, friends. Sweet dreams!", key="n1", gap=0.6)
+    s.mark("end"); s.fx("choir", gain=0.35); s.wait(5.0)
 
     def d7(c, t, s=s):
         if t < s.M("end"):
@@ -294,7 +286,14 @@ def build():
                               blink=1.0 if s.M("p2") < t < s.M("p2_end") and int(t * 2) % 2 == 0 else None)
             c.restore()
         else:
-            theme_card(c, t, s)
+            tt = t - s.M("end")
+            hero_rays(c, t * 0.2, 0xFF26336E, 0xFF2F3E80)
+            night_sky(c, t, 1.0)
+            k = ease_out(tt / 0.8)
+            text(c, "GOODNIGHT!", 640, 230, 110, 0xFFFFD93B, scale=k, ow=14)
+            dog_bed(c, 640, 720, 1.0)
+            draw_biscuit(c, 640, 700, 1.0, t, blink=1.0, ears=-0.3, wag=0.1, sit=1)
+            zzz(c, 700, 540, t)
     s.draw = d7
     S.append(s)
     return finish(S)

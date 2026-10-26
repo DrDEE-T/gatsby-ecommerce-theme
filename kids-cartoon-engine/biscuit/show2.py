@@ -175,7 +175,7 @@ def build():
     # ---------------- 3. STEPS 1 + 2: WATER AND BUBBLES (count the pops)
     s = Scene("fill", music="search", trans="boots", music_gain=0.6)
     s.wait(0.4)
-    s.say("narr", "Step one. Fill the tub with warm water.", key="s1", gap=0.1)
+    s.say("narr", "Step one. With a grown-up, fill the tub with warm water.", key="s1", gap=0.1)
     s.mark("pour"); s.fx("pour")
     s.wait(2.3)
     s.mark("paw")
@@ -190,7 +190,7 @@ def build():
     for i, w in enumerate(["One!", "Two!", "Three!"]):
         s.mark(f"n{i}"); s.fx("pop"); s.fx(f"ding{i + 1}")
         s.say("narr", w, gap=0.45)
-    s.say("prickles", "[chuckle] Oopsie-prickle!", key="oops", gap=0.6)
+    s.say("prickles", "Pop, pop, pop!", key="oops", gap=0.6)
 
     def d3(c, t, s=s):
         cam(c, 1.25, 620, 460)
@@ -231,17 +231,17 @@ def build():
     s = Scene("scrub", music="theme", trans="bubble", music_gain=0.5)
     s.fx("splash_small", 0.3)
     s.wait(0.6)
-    s.say("narr", "Step three. Scrub, scrub, scrub! Can you scrub with Biscuit?", key="s3", gap=0.3)
+    s.say("narr", "Step three. Scrub, scrub, scrub! Can you scrub with Biscuit?", key="s3", gap=1.5)
     parts = [("tummy", "body"), ("ears", "ears"), ("paws", "paws"), ("tail", None)]
     for i, (word, part) in enumerate(parts):
         s.say(["biscuit", "mittens"], f"Scrub your {word}!", key=f"sc{i}", gap=0.1)
-        s.mark(f"kids{i}"); s.fx("scrub"); s.wait(1.8)
+        s.mark(f"kids{i}"); s.fx("scrub"); s.wait(3.0)
         if i == 0:
             s.say("narr", "Is Biscuit clean yet?", key="ask1", gap=0.1)
-            s.mark("no_kids"); s.wait(1.6)
+            s.mark("no_kids"); s.wait(3.0)
             s.say("narr", "No! Keep scrubbing!", key="no", gap=0.3)
     s.say("narr", "Now is Biscuit clean?", key="ask2", gap=0.1)
-    s.mark("yes_kids"); s.wait(1.6)
+    s.mark("yes_kids"); s.wait(3.0)
     s.say("narr", "Yes!", key="yes", gap=0.2)
     s.mark("done3"); s.fx("ding6"); s.fx("sparkle")
     s.say("biscuit", "[laugh] Scrubbing tickles!", key="tickle", gap=0.6)
@@ -252,7 +252,7 @@ def build():
         tub_back(c, 640, 700, 1.0)
         remaining = [p for i, (w, p) in enumerate(parts) if p and t < s.M(f"kids{i}") + 1.5]
         mud = 1.0
-        scrubbing = any(s.M(f"kids{i}") < t < s.M(f"kids{i}") + 1.8 for i in range(len(parts)))
+        scrubbing = any(s.M(f"kids{i}") < t < s.M(f"kids{i}") + 3.0 for i in range(len(parts)))
         draw_biscuit(c, 640 + (math.sin(t * 14) * 5 if scrubbing else 0), 596, 1.0, t, mouth=s.mouth("biscuit", t), face=1,
                      mud=mud if remaining else 0, mud_parts=tuple(remaining), ears=0.6, wag=1.0,
                      blink=1.0 if s.M("tickle") < t < s.M("tickle_end") else None)
@@ -266,7 +266,7 @@ def build():
             sparkles(c, 640, 520, t, 10, 110)
         c.restore()
         for i, (word, _) in enumerate(parts):
-            prompt(c, f"SCRUB YOUR {word.upper()}!", t, s.M(f"sc{i}"), s.M(f"kids{i}") + 1.8, y=190, size=64)
+            prompt(c, f"SCRUB YOUR {word.upper()}!", t, s.M(f"sc{i}"), s.M(f"kids{i}") + 3.0, y=190, size=64)
         prompt(c, "NO!", t, s.M("no_kids"), s.M("no"), y=190, size=100)
         prompt(c, "YES!", t, s.M("yes_kids"), s.M("yes_end"), y=190, size=100)
         steps_bar(c, t, s, ["_", "_", "done3", None, None])
@@ -292,7 +292,7 @@ def build():
     s.mark("shake"); s.fx("shake")
     s.wait(1.2)
     s.say("mittens", "Meow! Now I'm all wet!", key="wet", gap=0.2)
-    s.say("prickles", "[laugh] Oopsie-biscuit!", key="laugh", gap=0.3)
+    s.say("prickles", "Hee hee! Splashy shake!", key="laugh", gap=0.3)
     s.mark("towel"); s.fx("cape")
     s.wait(0.8)
     s.mark("done5"); s.fx("ding8"); s.fx("sparkle")
@@ -345,27 +345,15 @@ def build():
     s.draw = d5
     S.append(s)
 
-    # ---------------- 6. THE BATH SONG: sung sing-along (one-word swap, Baby Shark style)
-    import json as _json
-    lyr = []
-    for st, en, line in _json.load(open(os.path.join(SONGS, "bath_lyrics.json"))):
-        lparts = [p.strip() for p in line.replace("!", ".").split(". ") if p.strip()] if len(line) > 36 else [line]
-        short = []
-        for p in lparts:
-            if len(p) > 36 and ", " in p:
-                cuts = [i for i in range(len(p)) if p.startswith(", ", i)]
-                mid = min(cuts, key=lambda i: abs(i - len(p) / 2))
-                short += [p[:mid], p[mid + 2:]]
-            else:
-                short.append(p)
-        lparts = short
-        step = (en - st) / len(lparts)
-        for i, p in enumerate(lparts):
-            lyr.append((st + i * step, st + (i + 1) * step, p.rstrip(".")))
+    # ---------------- 6. THE BATH SONG: short sung sing-along, close up in the yard
+    import shorts as _SH
+    lyr = [(0.0, 4.6, "It's bath time, bath time!"), (4.6, 8.6, "Water, bubbles, scrub, rinse, dry!"),
+           (8.6, 13.0, "Scrub your tummy, scrub, scrub, scrub!"), (13.0, 17.4, "Scrub your tummy!"),
+           (17.4, 21.5, "All clean and fluffy!"), (21.5, 24.0, "Hooray!")]
     s = Scene("song", music=None, trans="hero")
     s.wait(0.3)
     s.say("narr", "Let's sing the bath song! Scrub along with Biscuit!", key="n1", gap=0.3)
-    add_song(s, "bath.mp3", "bath", gain=1.0)
+    add_song(s, _SH.bath_excerpt(), "bath", gain=1.0)
     s.say("narr", "Great job, friends!", key="n3", gap=0.2)
     s.fx("sparkle"); s.fx("ding8")
     s.wait(0.6)
@@ -373,28 +361,34 @@ def build():
     def d_song(c, t, s=s, lyr=lyr):
         st0 = s.M("bath")
         tt = t - st0
-        hero_rays(c, t * 0.4, 0xFF8FD6FF, 0xFFA8E0FF)
-        floating_bubbles(c, t, 640, 760, 10, 1200, 8)
         cur = ""
         for (a_, b_, line) in lyr:
             if a_ <= tt < b_:
                 cur = line
-                PE.lyric(c, line, tt, a_, b_, y=120)
         # off-screen singer: characters only open their mouths to cheer "Hooray!"
-        sing = 0.8 if 59.4 < tt < 61.4 else 0.0
+        sing = 0.8 if tt > 21.5 else 0.0
         scrub = "crub" in cur or "rinse" in cur.lower() or "rub" in cur
-        beat = hop((tt % 0.536), 0, 0.536, 22) if 0 < tt < 72 else 0
-        tub_back(c, 640, 730, 1.0)
-        draw_biscuit(c, 640 + (math.sin(t * 14) * 5 if scrub else 0), 630 + beat * 0.4, 1.0, t, mouth=sing, face=1,
+        beat = hop((tt % 0.536), 0, 0.536, 22) if 0 < tt < 24 else 0
+        cam(c, 1.45, 640, 470)
+        garden(c, t, props=("tree",))
+        tub_back(c, 640, 700, 1.0)
+        draw_biscuit(c, 640 + (math.sin(t * 14) * 5 if scrub else 0), 600 + beat * 0.4, 1.0, t, mouth=sing, face=1,
                      ears=0.7, wag=1.6)
-        tub_front(c, 640, 730, 1.0, water=0.75, t=t, bubbles=1.0)
-        draw_mittens(c, 270, 690 + beat * 0.6, 0.9, t, mouth=sing, face=1, paw_up=0.5 + 0.5 * math.sin(t * 10) if scrub else 0.3)
-        draw_prickles(c, 1010, 690 + beat * 0.6, 0.95, t, mouth=sing, face=-1, wiggle=0.4 if scrub else 0)
+        tub_front(c, 640, 700, 1.0, water=0.75, t=t, bubbles=1.0)
+        draw_mittens(c, 380, GY + beat * 0.6, 0.9, t, mouth=sing, face=1, paw_up=0.5 + 0.5 * math.sin(t * 10) if scrub else 0.3)
+        draw_prickles(c, 900, GY + beat * 0.6, 0.95, t, mouth=sing, face=-1, wiggle=0.4 if scrub else 0)
+        for i in range(5):
+            ph = (t * 0.3 + i / 5) % 1
+            bubble(c, 520 + i * 60, 560 - ph * 300, 10 + 5 * hsh(i), t)
+        c.restore()
         # big picture cue for the body part being scrubbed
         cue = None
         for w, col in (("tummy", 0xFFFFC21A), ("ears", 0xFFFF9BD5), ("paws", 0xFF6CCB5F), ("rinse", 0xFF3D8BFF), ("towel", 0xFF8E5CF7)):
             if w in cur.lower():
                 cue = (w, col)
+        for (a_, b_, line) in lyr:
+            if a_ <= tt < b_:
+                PE.lyric(c, line, tt, a_, b_, y=120)
         if cue:
             circle(c, 640, 330, 64, cue[1], 6)
             text(c, cue[0].upper(), 640, 330, 44 if len(cue[0]) < 6 else 36, 0xFFFFFFFF, ow=6)
@@ -414,10 +408,10 @@ def build():
     for i in range(3):
         s.fx("pop", s.t + 0.3 + i * 0.3)
     s.wait(1.2)
-    s.say("prickles", "[laugh] Oopsie-prickle!", key="p2", gap=0.5)
+    s.say("prickles", "Hee hee! Pop!", key="p2", gap=0.5)
     s.mark("hug"); s.fx("sparkle", s.t + 0.5)
     s.wait(1.0)
-    s.say("biscuit", "[sigh] Bath time, then bedtime.", key="b2", gap=0.4)
+    s.say("mittens", "Now it's almost bedtime.", key="b2", gap=0.4)
     s.say("narr", "Bath time is done! Bye-bye, friends!", key="bye", gap=0.2)
     s.say(["biscuit", "mittens", "prickles"], "Bye!", key="all", gap=0.4)
     s.mark("end"); add_song(s, "theme.mp3", "theme")

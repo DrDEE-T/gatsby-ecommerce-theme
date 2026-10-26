@@ -9,7 +9,8 @@ import audio as A
 import voice
 from audio import envelope as _envelope
 
-PE.speak = voice.speak
+import edgevoice
+PE.speak = edgevoice.speak  # approved Edge voices; emotion cues become pace/pitch, never sounds
 Scene, cam, prompt, hero_rays = PE.Scene, PE.cam, PE.prompt, PE.hero_rays
 ALL = ["biscuit", "mittens", "prickles"]
 GY = 650  # where feet stand
@@ -82,6 +83,23 @@ THEME_LYRICS = [(0.0, "Biscuit and Friends!"), (4.0, "Woof! Woof!"), (6.0, "Mitt
                 (24.0, "Biscuit and Friends!"), (28.0, "Hooray!")]
 
 
+OUTRO_LYRICS = [(0.0, "Biscuit and Friends!"), (4.0, "Woof! Woof!"), (6.0, "Biscuit and Friends!"), (10.0, "Hooray!")]
+
+
+def outro_song():
+    """12-second theme outro: 'Biscuit and Friends! Woof! Woof!' then 'Biscuit and Friends! Hooray!'."""
+    path = os.path.join(SONGS, "theme_outro.wav")
+    if not os.path.exists(path):
+        import soundfile as _sf
+        y = load_song("theme.mp3")
+        a, b = y[: int(6.0 * A.SR)], y[int(24.0 * A.SR):]
+        x = int(0.15 * A.SR)
+        a[-x:] *= np.linspace(1, 0, x)
+        b[:x] *= np.linspace(0, 1, x)
+        _sf.write(path, np.concatenate([a, b]), A.SR)
+    return "theme_outro.wav"
+
+
 def load_song(name):
     import subprocess
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(SONGS, name), "-f", "f32le", "-ac", "1",
@@ -107,14 +125,14 @@ def theme_card(c, t, s):
     k = ease_out(tt / 0.8)
     # the theme comes from an off-screen singer: Biscuit only barks on "Woof! Woof!", everyone cheers "Hooray!"
     woof = 0.8 if 4.0 < tt < 6.0 and (tt % 1.0) < 0.45 else 0.0
-    cheer = 0.8 if tt > 28.0 else 0.0
+    cheer = 0.8 if tt > 10.0 else 0.0
     beat = hop((tt % 0.5), 0, 0.5, 26)
     text(c, "BISCUIT & FRIENDS", 640, 110, 92, 0xFFFFD93B, scale=k * (1 + 0.03 * math.sin(tt * 12.6)), ow=14)
     draw_mittens(c, 380, 610 + beat * 0.6, 0.95 * k, t, mouth=cheer, paw_up=0.5 + 0.5 * math.sin(t * 6))
     draw_biscuit(c, 640, 620 + beat, 1.05 * k, t, mouth=max(woof, cheer), ears=0.7, wag=1.8)
     draw_prickles(c, 900, 620 + beat * 0.8, 1.0 * k, t, mouth=cheer, face=-1)
-    for i, (st, line) in enumerate(THEME_LYRICS):
-        en = THEME_LYRICS[i + 1][0] if i + 1 < len(THEME_LYRICS) else 30.5
+    for i, (st, line) in enumerate(OUTRO_LYRICS):
+        en = OUTRO_LYRICS[i + 1][0] if i + 1 < len(OUTRO_LYRICS) else 12.5
         PE.lyric(c, line, tt, st, en, y=290)
 
 
@@ -127,7 +145,7 @@ def finish(S):
     for sc in S:
         for k in KIDS_MARKS:
             if k in sc.m:
-                sc.duck_zero.append((sc.m[k] - 0.1, sc.m[k] + 1.8))
+                sc.duck_zero.append((sc.m[k] - 0.1, sc.m[k] + 3.0))
     return S
 def checklist(c, t, s, n_done_marks):
     """Three numbered circles in the top-right corner, checked as each place is searched."""
@@ -182,7 +200,7 @@ def build():
     s.fx("roll", 0.3); s.fx("pok", 2.6); s.fx("sparkle", 2.7)
     s.wait(4.1)
     s.say("narr", "Uh oh! Did you see that?", key="uh", gap=0.1)
-    s.mark("kids"); s.wait(1.6)
+    s.mark("kids"); s.wait(3.0)
     s.say("narr", "Shh. It's our secret!", key="shh", gap=0.6)
 
     def d_secret(c, t, s=s):
@@ -284,7 +302,7 @@ def build():
     s.say("mittens", "Prickles, you have a flower on your spikes.", key="m1", gap=0.3)
     s.say("prickles", "Do I? Ooh, pretty!", key="p2", gap=0.6)
     s.say("narr", "Psst. Friends. Did you see something red?", key="psst", gap=0.1)
-    s.mark("kids"); s.fx("sparkle", s.t + 0.2); s.wait(2.2)
+    s.mark("kids"); s.fx("sparkle", s.t + 0.2); s.wait(3.0)
     s.say("narr", "Shh. Let's keep watching!", key="shh", gap=0.6)
 
     def d3(c, t, s=s):
@@ -328,11 +346,11 @@ def build():
     s.wait(1.2)
     s.say("biscuit", "A duck! Not my ball.", key="duck", gap=0.3)
     s.say(["biscuit", "mittens"], "Is it in the bucket?", key="ask", gap=0.1)
-    s.mark("kids"); s.wait(1.9)
+    s.mark("kids"); s.wait(3.5)
     s.say("narr", "No, no, no! Let's keep looking.", key="no", gap=0.3)
     s.mark("backup"); s.fx("pok", s.t + 0.9)
     s.wait(1.1)
-    s.say("prickles", "[chuckle] Oopsie-prickle!", key="oops", gap=0.3)
+    s.say("prickles", "Hee hee! A duck!", key="oops", gap=0.3)
     s.mark("check1"); s.fx("ding5"); s.wait(1.0)
 
     def d4(c, t, s=s):
@@ -364,11 +382,11 @@ def build():
     s.mark("sniff"); s.fx("sniff"); s.wait(1.2); s.fx("pop")
     s.say("biscuit", "Look, a sock! Not my ball.", key="sock", gap=0.3)
     s.say(["biscuit", "mittens"], "Is it in the grass?", key="ask", gap=0.1)
-    s.mark("kids"); s.wait(1.9)
+    s.mark("kids"); s.wait(3.5)
     s.say("narr", "No, no, no!", key="no", gap=0.3)
     s.mark("sit"); s.fx("pok", s.t + 0.5)
     s.wait(0.8)
-    s.say("prickles", "[chuckle] Oopsie-prickle! Again!", key="oops", gap=0.3)
+    s.say("prickles", "Hee hee! A sock!", key="oops", gap=0.3)
     s.mark("check2"); s.fx("ding6")
     s.wait(0.4); s.mark("peek"); s.fx("sparkle", s.t + 0.3); s.wait(2.0)
 
@@ -412,7 +430,7 @@ def build():
     s.mark("check3"); s.fx("ding7", gain=0.6)
     s.mark("down"); s.wait(1.4)
     s.say(["biscuit", "prickles"], "Is it in the tree?", key="ask", gap=0.1)
-    s.mark("kids"); s.wait(1.8)
+    s.mark("kids"); s.wait(3.5)
     s.say("narr", "No, no, no!", key="no", gap=0.6)
 
     def d6(c, t, s=s):
@@ -445,7 +463,7 @@ def build():
     s.say("biscuit", "[sigh] We looked everywhere. My red ball is gone forever.", key="b1", gap=0.4)
     s.say("prickles", "Don't be sad, Biscuit! I know! I'll do my silly dance. It always makes everybody laugh!", key="p1", gap=0.3)
     s.say("narr", "Wait! Friends, you know where the red ball is! Let's tell them! Say: it's on Prickles' back!", key="tell", gap=0.1)
-    s.mark("kids"); s.wait(3.0)
+    s.mark("kids"); s.wait(3.6)
     s.say("mittens", "Prickles... turn around.", key="m1", gap=0.2)
     s.mark("spin"); s.fx("roll")
     s.wait(0.6)
@@ -541,7 +559,7 @@ def build():
         s.t = st + 1.0
     s.mark("throw"); s.fx("whistle", gain=0.6)
     s.wait(1.0); s.fx("pok")
-    s.say("prickles", "[laugh] Oopsie-prickle!", key="oops", gap=0.3)
+    s.say("prickles", "Ha! It stuck again!", key="oops", gap=0.3)
     s.fx("cheer", gain=0.5)
     s.wait(1.2)
 
@@ -580,7 +598,7 @@ def build():
     s.say("biscuit", "[sigh] Best ball day ever.", key="best", gap=0.5)
     s.say("biscuit", "Bye, friends! See you next time!", key="b2", gap=0.2)
     s.say("mittens", "Bye-bye.", key="m2", gap=0.5)
-    s.mark("end"); add_song(s, "theme.mp3", "theme")
+    s.mark("end"); add_song(s, outro_song(), "theme")
 
     def d10(c, t, s=s):
         if t < s.M("end"):

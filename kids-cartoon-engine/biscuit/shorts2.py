@@ -109,9 +109,9 @@ def buildA():
         # the song comes from an off-screen singer: mouths only open for Woof and Hooray
         woof = 0.8 if 4.0 < tt < 6.0 and (tt % 1.0) < 0.45 else 0.0
         cheer = 0.8 if tt > 28.0 else 0.0
-        vcam(c, 1.6, 600, 430)
+        vcam(c, 1.85, 570, 455)
         garden(c, t, props=())
-        tree(c, 800, 560, 0.75)
+        tree(c, 745, 560, 0.72)
         # Biscuit pops up on frame 1
         bk = back_out(ramp(tt, 0.0, 0.5))
         sad = 1.0 if 12.8 < tt < 20.6 else 0.0
@@ -125,7 +125,7 @@ def buildA():
             mx, my = lerp(250, 420, mk), SY
             if 18.6 < tt < 20.6:
                 k = ramp(tt, 18.6, 19.6) if tt < 19.6 else 1 - ramp(tt, 19.6, 20.6)
-                mx, my = lerp(420, 740, k), SY - math.sin(min(k, 1) * math.pi / 2) * 300
+                mx, my = lerp(420, 715, k), SY - math.sin(min(k, 1) * math.pi / 2) * 290
             if tt > 24:
                 mx = lerp(420, 450, ease(ramp(tt, 24, 25)))
             draw_mittens(c, mx, my + (beat * 0.7 if not (18.6 < tt < 20.6) else 0) + hop(tt, 28.0, 0.7, 120), 0.85, t,
@@ -144,12 +144,12 @@ def buildA():
         if 12.4 < tt < 20.2:
             if tt < 13.2:
                 k = ramp(tt, 12.4, 13.2)
-                bpos = (lerp(620, 760, k), lerp(600, 380, k) - math.sin(k * math.pi) * 120)
+                bpos = (lerp(620, 735, k), lerp(600, 395, k) - math.sin(k * math.pi) * 120)
             elif tt < 19.6:
-                bpos = (760 + math.sin(tt * 6) * 3, 380)
+                bpos = (735 + math.sin(tt * 6) * 3, 395)
             else:
                 k = ramp(tt, 19.6, 20.2)
-                bpos = (lerp(760, 650, k), lerp(380, 600, k * k))
+                bpos = (lerp(735, 660, k), lerp(395, 600, k * k))
             stuck_item(c, "ball", bpos[0], bpos[1], 1.3, 0, t, sparkle=1.0 if tt > 13.2 else 0)
         elif 22.0 < tt:
             k = ramp(tt, 22.0, 22.8)
@@ -193,15 +193,15 @@ def buildB():
         in_tub = 5.0 < tt < 17.6
         out = tt >= 17.6
         clean = ease(ramp(tt, 8.6, 16.5))
-        mud_puddle(c, 440, 668, 100, t)
+        mud_puddle(c, 480, 668, 95, t)
         if tt > 2.0:
             tub_back(c, tub_x, 700, 0.9)
         if tt < 5.0:
             # frame 1: Biscuit leaps into the mud
-            bx = lerp(390, 440, ramp(tt, 0.0, 0.35)) if tt < 0.35 else lerp(420, tub_x, ease(ramp(tt, 4.4, 5.0)))
+            bx = lerp(560, 480, ramp(tt, 0.0, 0.35)) if tt < 0.35 else lerp(480, tub_x, ease(ramp(tt, 4.4, 5.0)))
             by = SY + 10 + hop(tt, 0.0, 0.35, 110) + hop(tt, 4.4, 0.6, 160) + (beat if 0.6 < tt < 4.4 else 0)
             draw_biscuit(c, bx, by, 1.0, t, mouth=cheer, face=1, mud=ease(ramp(tt, 0.3, 0.4)), ears=0.7, wag=1.8)
-            splash_fx(c, 420, 668, s.M("song") + 0.35, t, 1.0, 0xFF8B5A2B)
+            splash_fx(c, 480, 668, s.M("song") + 0.35, t, 1.0, 0xFF8B5A2B)
         elif in_tub:
             draw_biscuit(c, tub_x + math.sin(t * 14) * 5 * (tt > 8.6), 610 + beat * 0.3, 1.0, t, mouth=cheer, face=1,
                          mud=1 - clean, ears=0.7, wag=1.6)
@@ -224,7 +224,7 @@ def buildB():
                 sparkles(c, bx, 500, t, 8, 90)
         # friends dance on the sides; Mittens gets splashed by the shake
         wet = tt > 18.3
-        draw_mittens(c, 385, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=1,
+        draw_mittens(c, 360, SY + beat * 0.7 + hop(tt, 21.5, 0.7, 110), 0.72, t, mouth=cheer, face=1,
                      lid=0.0 if 18.3 < tt < 19.6 else 0.25, paw_up=0.5 + 0.5 * math.sin(t * 9))
         if wet and tt < 21.5:
             for i in range(4):
@@ -258,10 +258,10 @@ def buildC():
     esay(s, "biscuit", "I'm so sleepy. Goodnight, Prickles!", "sleepy", key="b1", gap=0.2)
     s.fx("pok")
     esay(s, "prickles", "Goodnight? I'm wide awake! Hedgehogs love the night!", "excited", key="p1", gap=0.3)
-    s.mark("sleep"); s.fx("roll", s.t + 0.5, 0.4); s.fx("boing", s.t + 1.6, 0.5); s.fx("boing", s.t + 2.4, 0.5)
-    s.wait(3.4)
-    s.mark("morning"); s.fx("chirp"); s.fx("chirp", s.t + 0.9)
-    s.wait(1.4)
+    s.mark("sleep"); s.fx("roll", s.t + 0.3, 0.4); s.fx("boing", s.t + 0.9, 0.5)
+    s.wait(1.6)
+    s.mark("morning"); s.fx("sparkle"); s.fx("chirp", s.t + 0.2); s.fx("chirp", s.t + 0.8)
+    s.wait(1.0)
     s.fx("wag")
     esay(s, "biscuit", "Good morning, Prickles! Let's play!", "excited", key="b2", gap=0.2)
     esay(s, "prickles", "Not now. Hedgehogs sleep in the daytime. Goodnight!", "sleepy", key="p2", gap=0.2)
@@ -273,7 +273,7 @@ def buildC():
     def d(c, t, s=s):
         if t >= s.M("end"):
             return end_card(c, t, s)
-        m = ease(ramp(t, s.M("morning"), s.M("morning") + 1.4))
+        m = ease(ramp(t, s.M("morning"), s.M("morning") + 0.9))
         vcam(c, 1.6, 580, 430)
         garden(c, t, props=(), sun_set=lerp(1.0, 0.2, m))
         dusk_overlay(c, 1.0 - m, 0.0)
